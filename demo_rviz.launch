@@ -1,0 +1,3 @@
+<launch>
+    <node type="rviz" name="rviz" pkg="rviz" args="-d /home/ubuntu/.rviz/icp_test.rviz" />
+</launch>
