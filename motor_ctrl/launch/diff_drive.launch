@@ -52,12 +52,12 @@
         <param name="rate" value="$(arg rate)" />
     </node>
 
-    <!-- <node pkg="differential_drive" type="virtual_joystick.py" name="virtual_joystick" ns="/teleop" output="screen">
+    <node pkg="differential_drive" type="virtual_joystick.py" name="virtual_joystick" ns="/teleop" output="screen">
         <param name="x_min" value="-10" />
         <param name="x_max" value="10" />
         <param name="r_min" value="-3" />
         <param name="r_max" value="3" />
         <param name="publish_rate" value="$(arg rate)" />
-    </node> -->
+    </node>
 
 </launch>
