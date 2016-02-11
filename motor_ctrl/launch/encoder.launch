@@ -1,5 +1,5 @@
 <launch>
     <!-- ENCODER -->
-    <node pkg="motor_ctrl" type="encoder" name="encoder" ns="/motor" output="screen"> </node>
+    <node pkg="motor_ctrl" type="encoder" name="encoder" ns="/encoder" output="screen"> </node>
 
 </launch>
