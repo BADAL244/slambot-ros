@@ -2,14 +2,14 @@
     <include file="$(find motor_ctrl)/launch/motor_ctrl.launch" />
     <!-- <include file="$(find motor_ctrl)/launch/encoder.launch" /> -->
 
-    <!-- ENCODER -->
-    <node pkg="motor_ctrl" type="encoder" name="encoder" ns="/encoder" output="screen"> </node>
+    <!-- ENCODER
+    <node pkg="motor_ctrl" type="encoder" name="encoder" ns="/encoder" output="screen"> </node> -->
 
-    <arg name="left_kp" default="100"/>
-    <arg name="left_ki" default="50"/>
+    <arg name="left_kp" default="214"/>
+    <arg name="left_ki" default="0"/>
     <arg name="left_kd" default="0"/>
 
-    <arg name="right_kp" default="2"/>
+    <arg name="right_kp" default="214"/>
     <arg name="right_ki" default="0"/>
     <arg name="right_kd" default="0"/>
 
@@ -22,6 +22,11 @@
 
     <node pkg="rostopic" type="rostopic" name="rostopic_left" args="pub /teleop/lwheel_vtarget std_msgs/Float32 0.0"/>
     <node pkg="rostopic" type="rostopic" name="rostopic_right" args="pub /teleop/rwheel_vtarget std_msgs/Float32 0.0"/>
+    <node pkg="rostopic" type="rostopic" name="encoder_left" args="pub
+    /encoder/left std_msgs/Int16 0"/>
+    <node pkg="rostopic" type="rostopic" name="encoder_right" args="pub
+    /encoder/right std_msgs/Int16 0"/>
+
 
     <!-- PID MOTOR CONTROL -->
     <node pkg="differential_drive" type="pid_velocity.py" name="pid_left" ns="/motor" output="screen">
@@ -61,12 +66,12 @@
         <param name="rate" value="$(arg rate)" />
     </node>
 
-    <!-- <node pkg="differential_drive" type="virtual_joystick.py" name="virtual_joystick" ns="/teleop" output="screen">
-        <param name="x_min" value="-1.5" />
-        <param name="x_max" value="1.5" />
-        <param name="r_min" value="10.0" />
-        <param name="r_max" value="10.0" />
+    <node pkg="differential_drive" type="virtual_joystick.py" name="virtual_joystick" ns="/teleop" output="screen">
+        <param name="x_min" value="-0.5" />
+        <param name="x_max" value="0.5" />
+        <param name="r_min" value="-5.0" />
+        <param name="r_max" value="5.0" />
         <param name="publish_rate" value="$(arg rate)" />
-    </node> -->
+    </node>
 
 </launch>

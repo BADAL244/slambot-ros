@@ -10,8 +10,8 @@ class Encoder():
     rospy.loginfo("%s started" % self.nodename)
     rate = rospy.Rate(10) # 10hz
 
-    L_pub = rospy.Publisher('left', Int16, queue_size=20)
-    R_pub = rospy.Publisher('right', Int16, queue_size=20)
+    L_pub = rospy.Publisher('left', Int16, queue_size=5)
+    R_pub = rospy.Publisher('right', Int16, queue_size=5)
 
     self.e1_A_pin = 22
     self.e1_B_pin = 23
