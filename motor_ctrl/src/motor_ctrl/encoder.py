@@ -1,48 +1,51 @@
-from gpiozero import DigitalInputDevice
-from adafruit_motorkit import MotorKit
-from time import sleep
-import atexit
+import rospy
+from std_msgs.msg import Int16
+import RPi.GPIO as GPIO
 
-kit = MotorKit()
+def publish_encoder():
+  L_pub = rospy.Publisher('lwheel', Int16, queue_size=10)
+  R_pub = rospy.Publisher('rwheel', Int16, queue_size=10)
+  rospy.init_node('encoder', anonymous=True)
+  rate = rospy.Rate(10) # 10hz
 
-class Encoder(object):
-    def __init__(self, pin):
-        self._value = 0
+  e1_A_pin = 22
+  e1_B_pin = 23
+  e2_A_pin = 24
+  e2_B_pin = 25
 
-        # setup gpiozero to call increment on each when_activated
-        encoder = DigitalInputDevice(pin)
-        encoder.when_activated = self._increment
-        encoder.when_deactivated = self._increment
-        
-    def reset(self):
-        self._value = 0
+  GPIO.setmode(GPIO.BCM)
+  GPIO.setup(e1_A_pin, GPIO.IN)
+  GPIO.setup(e1_B_pin, GPIO.IN)
+  GPIO.setup(e2_A_pin, GPIO.IN)
+  GPIO.setup(e2_B_pin, GPIO.IN)
 
-    def _increment(self):
-        self._value += 1
+  outcome = [0,-1,1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0]
 
-    @property
-    def value(self):
-        return self._value
+  e1_last_AB = 0b00
+  e2_last_AB = 0b00
+  e1 = 0
+  e2 = 0
 
-def motorOff():
-    kit.motor1.throttle = None
-    kit.motor2.throttle = None
+  while not rospy.is_shutdown():
+    e1_A = GPIO.input(e1_A_pin)
+    e1_B = GPIO.input(e1_B_pin)
+    e2_A = GPIO.input(e2_A_pin)
+    e2_B = GPIO.input(e2_B_pin)
+    e1_curr_AB = (e1_A << 1) | e1_B
+    e2_curr_AB = (e2_A << 1) | e2_B
+    e1_pos = (e1_last_AB << 2) | e1_curr_AB
+    e2_pos = (e2_last_AB << 2) | e2_curr_AB
+    e1 += outcome[e1_pos]
+    e2 += outcome[e2_pos]
+    e1_last_AB = e1_curr_AB
+    e2_last_AB = e2_curr_AB
+    #print("R {} L {}".format(e1, e2))
+    L_pub.publish(e2)
+    R_pub.publish(e1)
+    rate.sleep()
 
-SAMPLETIME = 1
-
-e1 = Encoder(27)
-e2 = Encoder(22)
-e3 = Encoder(23)
-e4 = Encoder(24)
-
-#start the robot
-kit.motor1.throttle = None
-kit.motor2.throttle = None
-
-#find a sample rate
-while True:
-#    kit.motor2.throttle = 0.2
-    print("e1 {} e2 {}".format(e1.value, e2.value))
-    sleep(SAMPLETIME)
-
-atexit.register(motorOff)
+if __name__ == '__main__':
+  try:
+    publish_encoder()
+  except rospy.ROSInterruptException:
+    pass
