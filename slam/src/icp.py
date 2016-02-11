@@ -121,7 +121,7 @@ def ICP():
     msg.pose.position.y = t[1]
     msg.pose.position.z = 0
     #rospy.loginfo("/n")
-    rospy.loginfo("ICP X: %s, Y: %s",str(t[0]),str(t[1]))
+    #rospy.loginfo("ICP X: %s, Y: %s",str(t[0]),str(t[1]))
     msg.pose.orientation.x = R[0][0]
     msg.pose.orientation.y = R[0][1]
     msg.pose.orientation.z = R[1][0]
@@ -170,6 +170,7 @@ lidar_sub = rospy.Subscriber('scan', LaserScan, subscriber_rplidar)
 icp_pub = rospy.Publisher('icp', Custom, queue_size = 20)
 
 if __name__ == '__main__':
+    rospy.loginfo("started icp")
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         try:
