@@ -92,6 +92,7 @@ def callback_sub(result):
     if tf is not None:
         all_tfs.append(tf)
         curr_scan_world_tf = addPose(curr_scan_world_tf, tf) #total tf of scan till now
+        robo_pose_pub.publish(curr_scan_world_tf)
         rospy.loginfo("Curr Scan World Tf x: %s, y:%s",str(curr_scan_world_tf.position.x),str(curr_scan_world_tf.position.y))
     update_map()
     gmap.header.stamp = rospy.Time.now()
@@ -103,9 +104,9 @@ def callback_sub(result):
 icp_sub = rospy.Subscriber('icp', Custom, callback_sub)
 
 #Publishers
-map_pub = rospy.Publisher('map', OccupancyGrid, queue_size = 5)
-last_scan_pub = rospy.Publisher('last_scan', LaserScan, queue_size = 5)
-
+map_pub = rospy.Publisher('map', OccupancyGrid, queue_size = 10)
+last_scan_pub = rospy.Publisher('last_scan', LaserScan, queue_size = 10)
+robo_pose_pub = rospy.Publisher('robot_pose', Pose, queue_size = 10)
 
 
 if __name__ == '__main__':

@@ -5,39 +5,48 @@
     <!-- ENCODER -->
     <node pkg="motor_ctrl" type="encoder" name="encoder" ns="/encoder" output="screen"> </node>
 
-    <arg name="left_kp" default="1"/>
-    <arg name="left_ki" default="0"/>
+    <arg name="left_kp" default="100"/>
+    <arg name="left_ki" default="50"/>
     <arg name="left_kd" default="0"/>
 
-    <arg name="right_kp" default="1"/>
+    <arg name="right_kp" default="2"/>
     <arg name="right_ki" default="0"/>
     <arg name="right_kd" default="0"/>
 
     <arg name="rate" default="10" />
+    <arg name="ticks_meter" default="3526" />
 
-    <rosparam param="ticks_meter">3526</rosparam>
+    <param name="/motor/ticks_meter" value="$(arg ticks_meter)" />
+    <!-- <param name="/motor/left/ticks_meter" value="$(arg ticks_meter)" />
+    <param name="/motor/right/ticks_meter" value="$(arg ticks_meter)" /> -->
 
     <node pkg="rostopic" type="rostopic" name="rostopic_left" args="pub /teleop/lwheel_vtarget std_msgs/Float32 0.0"/>
     <node pkg="rostopic" type="rostopic" name="rostopic_right" args="pub /teleop/rwheel_vtarget std_msgs/Float32 0.0"/>
 
     <!-- PID MOTOR CONTROL -->
-    <node pkg="differential_drive" type="pid_velocity.py" name="pid_left" ns="/motor/left" output="screen">
+    <node pkg="differential_drive" type="pid_velocity.py" name="pid_left" ns="/motor" output="screen">
         <param name="Kp" value="$(arg left_kp)" />
         <param name="Ki" value="$(arg left_ki)" />
         <param name="Kd" value="$(arg left_kd)" />
         <param name="rate" value="$(arg rate)" />
-        <param name="vel_threshold" value="1.0" />
+        <param name="vel_threshold" value="0.001" />
+        <param name="rolling_pts" value="5" />
         <remap from="wheel" to="/encoder/left" />
         <remap from="wheel_vtarget" to="/teleop/lwheel_vtarget" />
+        <remap from="motor_cmd" to="left_motor_cmd" />
+        <remap from="wheel_vel" to="left_wheel_vel" />
     </node>
-    <node pkg="differential_drive" type="pid_velocity.py" name="pid_right" ns="/motor/right" output="screen">
+    <node pkg="differential_drive" type="pid_velocity.py" name="pid_right" ns="/motor" output="screen">
         <param name="Kp" value="$(arg right_kp)" />
         <param name="Ki" value="$(arg right_ki)" />
         <param name="Kd" value="$(arg right_kd)" />
         <param name="rate" value="$(arg rate)" />
-        <param name="vel_threshold" value="1" />
+        <param name="vel_threshold" value="0.001" />
+        <param name="rolling_pts" value="5" />
         <remap from="wheel" to="/encoder/right" />
         <remap from="wheel_vtarget" to="/teleop/rwheel_vtarget" />
+        <remap from="motor_cmd" to="right_motor_cmd" />
+        <remap from="wheel_vel" to="right_wheel_vel" />
     </node>
 
     <node pkg="differential_drive" type="diff_tf.py" name="diff_tf" ns="/motor" output="screen">
@@ -53,10 +62,10 @@
     </node>
 
     <!-- <node pkg="differential_drive" type="virtual_joystick.py" name="virtual_joystick" ns="/teleop" output="screen">
-        <param name="x_min" value="-10" />
-        <param name="x_max" value="10" />
-        <param name="r_min" value="-3" />
-        <param name="r_max" value="3" />
+        <param name="x_min" value="-1.5" />
+        <param name="x_max" value="1.5" />
+        <param name="r_min" value="10.0" />
+        <param name="r_max" value="10.0" />
         <param name="publish_rate" value="$(arg rate)" />
     </node> -->
 

@@ -18,8 +18,8 @@ class MotorController:
     self.right = mh.getMotor(2)
     rospy.on_shutdown(self.motor_off)
     atexit.register(self.motor_off)
-    rospy.Subscriber("left/motor_cmd", Float32, callback=self.on_left)
-    rospy.Subscriber("right/motor_cmd", Float32, callback=self.on_right)
+    rospy.Subscriber("left_motor_cmd", Float32, callback=self.on_left)
+    rospy.Subscriber("right_motor_cmd", Float32, callback=self.on_right)
 
   def on_left(self, motor_cmd):
     motor_cmd = int(motor_cmd.data)
