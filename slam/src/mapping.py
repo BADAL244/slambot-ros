@@ -13,7 +13,7 @@ import json
 import urllib2
 
 rospy.init_node('map_node')
-server = os.getenv('SERVER')
+server = 'http://CHANGE_ME:3001'
 
 all_scans = []
 all_tfs = []
@@ -28,11 +28,10 @@ resolution = 0.0254
 
 def mapToServer():
     payload = {
-        'data': gmap
+        'data': gmap.data
     }
     to = server + '/data'
     r = requests.post(to, data=payload)
-    print (r)
     return
 
 def update_map():
