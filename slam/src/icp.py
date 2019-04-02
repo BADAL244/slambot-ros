@@ -1,30 +1,32 @@
-#TODO setup ros nodes
-
-import numpy as np
+impot numpy as np
 import rospy
 from std_msgs.msg import String
 
-def getPointInScan(x):
-    return 2
+map = {{}}
+lidarScan = {}
+B = None
+T = None
+A = None
 
-def FindClosestPointAndNormal(T,P,Q):
-    return 2
-
-def make_matrices(A,B):
-    for i in range(1, 359):
-        P = getPointInScan(i)
-        (N, Q) = FindClosestPointAndNormal(A, B, i)
-
-    return A, B
-
-def ICP(A,B,T):
+def ICP(A,B,T=none):
     #make matrices from scans
-    A, B = make_matrices(A, B)
+
+    src = []
+    dst = []
+    for i in range(360):
+        pt = getPointInScan(A,i)
+        src = src.append([pt.x, pt.y])
+        pt2 = findClosestPoint(A,B,i)
+        dst = dst.append([pt2.x, pt2.y])
+
+    A = np.transpose(np.matrix(src))
+    B = np.transpose(np.matrix(dst))
 
     #subtract the means of both matrices
     A = A - np.mean(A, axis=0)
     B = B - np.mean(B, axis=0)
-    A = np.dot(T, A)
+    if T is not None:
+        A = np.dot(T, A)
 
     #convergence params
     dmax = 0.001
@@ -33,7 +35,7 @@ def ICP(A,B,T):
 
     #start iterations
     for i in range(iterations):
-        T, distance = np.linalg.lstsq(A, B)[0:2]
+        T, distance = np.linalg.lstsq(A, B)[0:2] #Ax-B minimize
         A = np.dot(T, A)
 
         #check mean error
@@ -48,58 +50,42 @@ def ICP(A,B,T):
 
 
 def talker():
-    publisher = rospy.Publisher('mapping', String, queue_size=10)
+    publisher = rospy.Publisher('Transform', String, queue_size=10)
     rospy.init_node('icp', anonymous=True)
     rate = rospy.Rate(25)
     while not rospy.is_shutdown():
-        result = "hello world"
-        publisher.publish(result)
+        subscriber()
+        (tf,new_scan) = ICP(A,B,T)
+        publisher.publish((tf,new_scan))
         rate.sleep()
         try:
             talker()
         except rospy.ROSInterruptException:
             pass
 
+def subscriber_map(scan):
+    B = scan
+def subscriber_encoder(tf):
+    T = tf
+def subscriber_rplidar(data):
+    A = data
+
 def subscriber():
-    rospy.init_node('icp')
-    rospy.Subscriber('rplidar', String, ICP)
+    rospy.Subscriber('rplidar', String, subscriber_rplidar)
+    rospy.Subscriber('map', String, subscriber_map)
+    rospy.Subscriber('encoder', String, subscriber_encoder)
     rospy.spin()
 
-
-
-import rospy
-from std_msgs.msg import String
-
-map = {{}}
-lidarScan = {}
-
-# TODO: where do you get map data from?
-
-def getMapData():
-    map = data.data
-    rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
-    rospy.Subscriber("MapData", String, callback)
-    lidarScan = rospy.Subscriber("RPLidar", String, callback)
-
-def talker():
-    pub = rospy.Publisher('xD', String, queue_size=10)
-    rospy.init_node('talker', anonymous=True)
-    rate = rospy.Rate(10)
-    while not rospy.is_shutdown():
-        hello = "hi"
-        rospy.loginfo(hello)
-        pub.publish(hello)
-        rate.sleep()
-
-def getPointInScanA(i):
+def getPointInScan(lidarScan,i):
     pt = lidarScan[i]
     return Math.sqrt(Math.pow(pt.x, 2) + Math.pow(pt.y,2))
 
-def findClosestPointInNormal(A,B,i):
-    pt = A[i];
+def findClosestPoint(A,B,i):
+    pt = getPointInScan(A,i);
     pt2 = [];
     lowestDist = 999999999;
-    for testPoint in B:
+    for i in range(360):
+	testPoint = getPointInScan(B,i)
         dist = Math.sqrt(Math.pow(pt.x - testPoint.x, 2) + Math.pow(pt.y - testPoint.y, 2))
         if dist < lowestDist:
             lowestDist = dist
