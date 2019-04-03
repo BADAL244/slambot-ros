@@ -1,24 +1,36 @@
 <launch>
     <!-- <include file="$(find objdt)/launch/apriltag_track.launch" /> -->
 
-    <!-- <arg name="max_lin_vel" default="1500"/> -->
+    <arg name="left_kp" default="10"/>
+    <arg name="left_ki" default="0"/>
+    <arg name="left_kd" default="0.001"/>
 
-    <node pkg="rostopic" type="rostopic" name="rostopic_left" args="pub /motor/left/target std_msgs/Float32 0.0"/>
-    <node pkg="rostopic" type="rostopic" name="rostopic_right" args="pub /motor/right/target std_msgs/Float32 0.0"/>
+    <arg name="right_kp" default="10"/>
+    <arg name="right_ki" default="0"/>
+    <arg name="right_kd" default="0.001"/>
+
+    <node pkg="rostopic" type="rostopic" name="rostopic_left" args="pub /teleop/lwheel_vtarget std_msgs/Float32 0.0"/>
+    <node pkg="rostopic" type="rostopic" name="rostopic_right" args="pub /teleop/rwheel_vtarget std_msgs/Float32 0.0"/>
 
     <!-- ENCODER -->
     <node pkg="motor_ctrl" type="encoder" name="encoder" ns="/encoder" output="screen"> </node>
 
     <!-- PID MOTOR CONTROL -->
     <node pkg="differential_drive" type="pid_velocity.py" name="pid_left" ns="/motor/left" output="screen">
-        <!-- <param name="max_lin_vel" value="$(arg max_lin_vel)" /> -->
+        <param name="Kp" value="$(arg left_kp)" />
+        <param name="Ki" value="$(arg left_ki)" />
+        <param name="Kd" value="$(arg left_kd)" />
+        <param name="ticks_meter" value="1000" />
         <remap from="wheel" to="/encoder/left" />
-        <remap from="wheel_vtarget" to="/motor/left/target" />
+        <remap from="wheel_vtarget" to="/teleop/lwheel_vtarget" />
     </node>
     <node pkg="differential_drive" type="pid_velocity.py" name="pid_right" ns="/motor/right" output="screen">
-        <!-- <param name="max_lin_vel" value="$(arg max_lin_vel)" /> -->
+        <param name="Kp" value="$(arg right_kp)" />
+        <param name="Ki" value="$(arg right_ki)" />
+        <param name="Kd" value="$(arg right_kd)" />
+        <param name="ticks_meter" value="1000" />
         <remap from="wheel" to="/encoder/right" />
-        <remap from="wheel_vtarget" to="/motor/right/target" />
+        <remap from="wheel_vtarget" to="/teleop/rwheel_vtarget" />
     </node>
 
     <!-- MOTOR CONTROLLERS -->
@@ -28,6 +40,15 @@
         <!-- <param name="max_lin_vel" value="$(arg max_lin_vel)" /> -->
         <remap from="lwheel" to="/encoder/left" />
         <remap from="rwheel" to="/encoder/right" />
+    </node>
+
+    <node pkg="differential_drive" type="twist_to_motors.py" name="twist_to_motors" ns="/teleop" output="screen"> </node>
+
+    <node pkg="differential_drive" type="virtual_joystick.py" name="virtual_joystick" ns="/teleop" output="screen">
+        <param name="x_min" value="-10" />
+        <param name="x_max" value="10" />
+        <param name="r_min" value="-3" />
+        <param name="r_max" value="3" />
     </node>
 
 </launch>
