@@ -1,0 +1,5 @@
+<launch>
+    <!-- ENCODER -->
+    <node pkg="motor_ctrl" type="encoder" name="encoder" ns="/motor" output="screen"> </node>
+
+</launch>
