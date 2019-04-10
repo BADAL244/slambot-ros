@@ -1,19 +1,19 @@
-#TODO ros nodes talking to each other
-#TODO test icp
-#TODO make mapping
-
 #! /usr/bin/env python
 import numpy as np
 import rospy
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import OccupancyGrid 
 from std_msgs.msg import String
 
-map = {}
+rospy.init_node('icp_node', anonymous=True)
+
+gmap = {}
 lidarScan = {}
 B = None
 T = None
 A = None
 
-def ICP(A,B,T=None):
+def ICP(A=None,B=None,T=None):
     #make matrices from scans
 
     src = []
@@ -52,35 +52,6 @@ def ICP(A,B,T=None):
     #return matrix and final transform
     return (T, A)
 
-
-
-def talker():
-    publisher = rospy.Publisher('Transform', String, queue_size=10)
-    rospy.init_node('icp', anonymous=True)
-    rate = rospy.Rate(25)
-    while not rospy.is_shutdown():
-        subscriber()
-        (tf,new_scan) = ICP(A,B,T)
-        publisher.publish((tf,new_scan))
-        rate.sleep()
-        try:
-            talker()
-        except rospy.ROSInterruptException:
-            pass
-
-def subscriber_map(scan):
-    B = scan
-def subscriber_encoder(tf):
-    T = tf
-def subscriber_rplidar(data):
-    A = data
-
-def subscriber():
-    rospy.Subscriber('rplidar', String, subscriber_rplidar)
-    rospy.Subscriber('map', String, subscriber_map)
-    rospy.Subscriber('encoder', String, subscriber_encoder)
-    rospy.spin()
-
 def getPointInScan(lidarScan,i):
     pt = lidarScan[i]
     return Math.sqrt(Math.pow(pt.x, 2) + Math.pow(pt.y,2))
@@ -90,15 +61,35 @@ def findClosestPoint(A,B,i):
     pt2 = [];
     lowestDist = 999999999;
     for i in range(360):
-	testPoint = getPointInScan(B,i)
+        testPoint = getPointInScan(B,i)
         dist = Math.sqrt(Math.pow(pt.x - testPoint.x, 2) + Math.pow(pt.y - testPoint.y, 2))
         if dist < lowestDist:
             lowestDist = dist
             pt2 = testPoint
     return pt2
 
+def subscriber_map(scan):
+    global B
+    B = scan
+def subscriber_encoder(tf):
+    global T
+    T = tf
+def subscriber_rplidar(scan):
+    global A
+    A = scan
+
+#Subscribers
+lidar_sub = rospy.Subscriber('rplidar', LaserScan, subscriber_rplidar)
+map_sub = rospy.Subscriber('last_scan', LaserScan, subscriber_map)
+enc_sub = rospy.Subscriber('encoder', tf, subscriber_encoder)
+
+#Publisher
+icp_pub = rospy.Publisher('icp', {tf, LaserScan}, queue_size = 5)
+
 if __name__ == '__main__':
-    try:
-        talker()
-    except rospy.ROSInterruptException:
-        pass
+
+    while not rospy.is_shutdown():
+        try:
+            icp_pub.publish(ICP())
+        except rospy.ROSInterruptException:
+            pass
