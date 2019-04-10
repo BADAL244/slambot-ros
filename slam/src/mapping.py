@@ -11,7 +11,7 @@ rospy.init_node('map_node', anonymous=True)
 
 all_scans = []
 all_tfs = []
-curr_scan = None
+scan = None
 curr_scan_world_tf.x = 0
 curr_scan_world_tf.y = 0
 gmap = OccupancyGrid()
@@ -42,7 +42,7 @@ def update_map():
             gmap.data[i] = grid.flat[i]
 
 def callback_sub(result):
-    (tf,curr_scan) = result
+    (tf,scan) = result
     all_scans.append(scan)
     all_tfs.append(tf)
     curr_scan_world_tf += tf #total tf of scan till now
@@ -70,7 +70,11 @@ if __name__ = '__main_':
     loop_rate = rospy.Rate(rate)
 
     while not rospy.is_shutdown():
-        update_map()
-        gmap.header.stamp = rospy.Time.now()
-        publish(gmap)
-        loop_rate.sleep()
+        try:
+            update_map()
+            gmap.header.stamp = rospy.Time.now()
+            last_scan_pub(scan)
+            map_pub(gmap)
+            loop_rate.sleep()
+        except rospy.ROSInterruptException:
+            pass

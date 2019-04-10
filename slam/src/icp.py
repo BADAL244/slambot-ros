@@ -14,15 +14,16 @@ T = None
 A = None
 
 def ICP(A=None,B=None,T=None):
+    return_scan = A
     #make matrices from scans
 
     src = []
     dst = []
     for i in range(360):
         pt = getPointInScan(A,i)
-        src = src.append([pt.x, pt.y, 1])
+        src = src.append([pt.x, pt.y])
         pt2 = findClosestPoint(A,B,i)
-        dst = dst.append([pt2.x, pt2.y, 1])
+        dst = dst.append([pt2.x, pt2.y])
 
     A = np.transpose(np.matrix(src))
     B = np.transpose(np.matrix(dst))
@@ -50,7 +51,7 @@ def ICP(A=None,B=None,T=None):
         initial_distance = mean_distance
 
     #return matrix and final transform
-    return (T, A)
+    return (T, return_scan)
 
 def getPointInScan(lidarScan,i):
     pt = lidarScan[i]
@@ -91,5 +92,6 @@ if __name__ == '__main__':
     while not rospy.is_shutdown():
         try:
             icp_pub.publish(ICP())
+            rate.sleep()
         except rospy.ROSInterruptException:
             pass
