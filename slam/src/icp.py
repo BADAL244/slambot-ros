@@ -1,23 +1,28 @@
-impot numpy as np
+#TODO ros nodes talking to each other
+#TODO test icp
+#TODO make mapping
+
+#! /usr/bin/env python
+import numpy as np
 import rospy
 from std_msgs.msg import String
 
-map = {{}}
+map = {}
 lidarScan = {}
 B = None
 T = None
 A = None
 
-def ICP(A,B,T=none):
+def ICP(A,B,T=None):
     #make matrices from scans
 
     src = []
     dst = []
     for i in range(360):
         pt = getPointInScan(A,i)
-        src = src.append([pt.x, pt.y])
+        src = src.append([pt.x, pt.y, 1])
         pt2 = findClosestPoint(A,B,i)
-        dst = dst.append([pt2.x, pt2.y])
+        dst = dst.append([pt2.x, pt2.y, 1])
 
     A = np.transpose(np.matrix(src))
     B = np.transpose(np.matrix(dst))
