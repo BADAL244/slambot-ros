@@ -1,0 +1,14 @@
+<launch>
+  <node 
+	name="icp_node" 
+	pkg="slam" 
+	type="icp.py" 
+	respawn="true" 
+	output="screen"/>
+  <node 
+	name="map_node" 
+	pkg="slam" 
+	type="mapping.py" 
+	respawn="true" 
+	output="screen"/>
+</launch>
