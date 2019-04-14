@@ -11,4 +11,6 @@
 	type="mapping.py" 
 	respawn="true" 
 	output="screen"/>
+  <include
+	file="$(find rplidar_ros)/launch/icp.launch" />
 </launch>
