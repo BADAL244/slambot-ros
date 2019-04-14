@@ -1,9 +1,12 @@
 #! /usr/bin/env python
 import numpy as np
 import rospy
+import tf
+import turtlesim.msg
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import OccupancyGrid 
 from std_msgs.msg import String
+from geometry_msgs.msg import Pose
 
 rospy.init_node('icp_node', anonymous=True)
 
@@ -82,10 +85,10 @@ def subscriber_rplidar(scan):
 #Subscribers
 lidar_sub = rospy.Subscriber('rplidar', LaserScan, subscriber_rplidar)
 map_sub = rospy.Subscriber('last_scan', LaserScan, subscriber_map)
-enc_sub = rospy.Subscriber('encoder', tf, subscriber_encoder)
+enc_sub = rospy.Subscriber('encoder', Pose, subscriber_encoder)
 
 #Publisher
-icp_pub = rospy.Publisher('icp', {tf, LaserScan}, queue_size = 5)
+icp_pub = rospy.Publisher('icp', {Pose, LaserScan}, queue_size = 5)
 
 if __name__ == '__main__':
 
