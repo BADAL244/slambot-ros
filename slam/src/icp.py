@@ -16,9 +16,14 @@ lidarScan = {}
 B = None
 T = None
 A = None
+count = 0
 
 def ICP(A=None,B=None,T=None):
-    return_scan = A
+    count = count + 1
+    while count < 2:
+        return (None, None)
+
+    return_scan = B
     #make matrices from scans
 
     src = []
@@ -74,14 +79,15 @@ def findClosestPoint(A,B,i):
     return pt2
 
 def subscriber_map(scan):
-    global B
-    B = scan
+    global A
+    A = scan
 def subscriber_encoder(tf):
     global T
     T = tf
 def subscriber_rplidar(scan):
-    global A
-    A = scan
+    global B
+    B = scan
+    icp_pub.publish(ICP())
 
 #Subscribers
 lidar_sub = rospy.Subscriber('scan', LaserScan, subscriber_rplidar)
@@ -95,7 +101,6 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown():
         try:
-            icp_pub.publish(ICP())
-            rate.sleep()
+            rospy.spin()
         except rospy.ROSInterruptException:
             pass

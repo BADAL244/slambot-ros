@@ -19,7 +19,6 @@ gmap = OccupancyGrid()
 resolution = 1
 width = 288
 height = 288
-rate = 25.0
 
 def update_map():
     #Get curr total tf of car
@@ -47,7 +46,11 @@ def callback_sub(result):
     all_scans.append(scan)
     all_tfs.append(tf)
     curr_scan_world_tf += tf #total tf of scan till now
-    rospy.spin()
+
+    update_map()
+    gmap.header.stamp = rospy.Time.now()
+    last_scan_pub(scan)
+    map_pub(gmap)
 
 #Subscribers
 icp_sub = rospy.Subscriber('icp', Custom, callback_sub)
@@ -68,14 +71,9 @@ if __name__ == '__main_':
     gmap.info.width = width
     gmap.info.height = height
     gmap.data = range(width*height)
-    loop_rate = rospy.Rate(rate)
 
     while not rospy.is_shutdown():
         try:
-            update_map()
-            gmap.header.stamp = rospy.Time.now()
-            last_scan_pub(scan)
-            map_pub(gmap)
-            loop_rate.sleep()
+            rospy.spin()
         except rospy.ROSInterruptException:
             pass
