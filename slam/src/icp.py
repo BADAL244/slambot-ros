@@ -7,6 +7,7 @@ from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import OccupancyGrid 
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
+from slam.msg import Custom
 
 rospy.init_node('icp_node', anonymous=True)
 
@@ -83,12 +84,12 @@ def subscriber_rplidar(scan):
     A = scan
 
 #Subscribers
-lidar_sub = rospy.Subscriber('rplidar', LaserScan, subscriber_rplidar)
+lidar_sub = rospy.Subscriber('scan', LaserScan, subscriber_rplidar)
 map_sub = rospy.Subscriber('last_scan', LaserScan, subscriber_map)
 enc_sub = rospy.Subscriber('encoder', Pose, subscriber_encoder)
 
 #Publisher
-icp_pub = rospy.Publisher('icp', {Pose, LaserScan}, queue_size = 5)
+icp_pub = rospy.Publisher('icp', Custom, queue_size = 5)
 
 if __name__ == '__main__':
 

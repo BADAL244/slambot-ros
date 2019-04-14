@@ -3,6 +3,7 @@ import rospy
 from nav_msgs.msg import OccupancyGrid
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import LaserScan
+from slam.msg import Custom
 import tf
 import math
 import numpy as np
@@ -49,7 +50,7 @@ def callback_sub(result):
     rospy.spin()
 
 #Subscribers
-icp_sub = rospy.Subscriber('icp', {Pose, LaserScan}, callback_sub)
+icp_sub = rospy.Subscriber('icp', Custom, callback_sub)
 
 #Publishers
 map_pub = rospy.Publisher('map', OccupancyGrid, queue_size = 5)
