@@ -8,7 +8,7 @@ import tf
 import math
 import numpy as np
 
-rospy.init_node('map_node', anonymous=True)
+rospy.init_node('map_node',log_level=rospy.LOGWARN)
 
 all_scans = []
 all_tfs = []
@@ -51,12 +51,10 @@ def callback_sub(result):
     scan = result.scan
     all_scans.append(scan)
     all_tfs.append(tf)
-    rospy.loginfo("GETS HERE")
     curr_scan_world_tf += tf #total tf of scan till now
 
     update_map()
     gmap.header.stamp = rospy.Time.now()
-    rospy.loginfo("I heard scan in MAP  %s",str(scan.ranges)[1:-1])
     last_scan_pub.publish(scan)
     map_pub.publish(gmap)
     return

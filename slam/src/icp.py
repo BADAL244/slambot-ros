@@ -9,7 +9,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 from slam.msg import Custom
 
-rospy.init_node('icp_node', anonymous=True)
+rospy.init_node('icp_node')
 
 gmap = {}
 lidarScan = {}
