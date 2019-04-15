@@ -42,7 +42,8 @@ def update_map():
             gmap.data[i] = grid.flat[i]
 
 def callback_sub(result):
-    (tf,scan) = result
+    tf = result.pose
+    scan = result.scan
     all_scans.append(scan)
     all_tfs.append(tf)
     curr_scan_world_tf += tf #total tf of scan till now
