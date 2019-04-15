@@ -19,6 +19,7 @@ A = None
 count = 0
 
 def ICP(A=None,B=None,T=None):
+    global count
     count = count + 1
     while count < 2:
         return (None, None)
