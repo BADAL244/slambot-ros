@@ -112,6 +112,7 @@ def subscriber_rplidar(scan):
     msg = Custom()
     msg = ICP(A,B,None)
     #rospy.loginfo("ScAN B %s",str(msg.scan.ranges)[1:-1])
+    rospy.sleep(2)
     icp_pub.publish(msg)
     return
 
