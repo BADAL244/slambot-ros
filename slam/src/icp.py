@@ -21,6 +21,7 @@ count = 0
 def ICP(A,B,T):
     global count
     count = count + 1
+    rospy.loginfo("count %s",str(count))
     if count < 2:
         msg = Custom()
         msg.header = None
