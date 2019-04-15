@@ -89,8 +89,8 @@ def findClosestPoint(A,B,i):
 
 def subscriber_map(scan):
     global A
-    A = scan
-    rospy.loginfo("I heard scan A %s",str(A.ranges)[1:-1])
+    A = scan.ranges
+    rospy.loginfo("I heard scan A %s",str(A)[1:-1])
 
 def subscriber_encoder(tf):
     global T
@@ -98,8 +98,8 @@ def subscriber_encoder(tf):
 
 def subscriber_rplidar(scan):
     global B
-    B = scan
-    rospy.loginfo("I heard scan B %s",str(B.ranges)[1:-1])
+    B = scan.ranges
+    rospy.loginfo("I heard scan B %s",str(B)[1:-1])
     icp_pub.publish(ICP())
 
 #Subscribers
