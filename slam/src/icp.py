@@ -25,7 +25,7 @@ def ICP(A=None,B=None,T=None):
         msg = Custom()
         msg.header = None
         msg.pose = None
-        msg.scan = None
+        msg.scan = B
         return msg
 
     return_scan = B
