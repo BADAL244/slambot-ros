@@ -93,7 +93,10 @@ def findClosestPoint(A,B,i):
 def subscriber_map(scan):
     global A
     A = scan
-    rospy.loginfo("I heard scan A %s",str(A.ranges)[1:-1])
+    if A is not None:
+        rospy.loginfo("I heard scan A %s",str(A.ranges)[1:-1])
+    else:
+        rospy.loginfo("A is None")
 
 def subscriber_encoder(tf):
     global T

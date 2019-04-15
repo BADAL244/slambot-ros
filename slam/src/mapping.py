@@ -51,6 +51,7 @@ def callback_sub(result):
     scan = result.scan
     all_scans.append(scan)
     all_tfs.append(tf)
+    rospy.loginfo("GETS HERE")
     curr_scan_world_tf += tf #total tf of scan till now
 
     update_map()
