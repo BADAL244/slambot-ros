@@ -80,9 +80,9 @@ if __name__ == '__main_':
     gmap.info.width = width
     gmap.info.height = height
     gmap.data = range(width*height)
-
+    rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         try:
-            rospy.spin()
+            rate.sleep()
         except rospy.ROSInterruptException:
             pass

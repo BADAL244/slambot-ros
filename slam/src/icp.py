@@ -124,9 +124,9 @@ lidar_sub = rospy.Subscriber('scan', LaserScan, subscriber_rplidar)
 icp_pub = rospy.Publisher('icp', Custom, queue_size = 20)
 
 if __name__ == '__main__':
-
+    rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         try:
-            rospy.spin()
+            rate.sleep()
         except rospy.ROSInterruptException:
             pass
