@@ -50,6 +50,7 @@ def callback_sub(result):
 
     update_map()
     gmap.header.stamp = rospy.Time.now()
+    rospy.loginfo("I heard scan in MAP  %s",str(scan.ranges)[1:-1])
     last_scan_pub(scan)
     map_pub(gmap)
 
