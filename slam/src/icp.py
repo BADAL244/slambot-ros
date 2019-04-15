@@ -100,12 +100,12 @@ def subscriber_rplidar(scan):
     global B
     B = scan.ranges
     rospy.loginfo("I heard scan B %s",str(B)[1:-1])
-    icp_pub.publish(ICP())
+    icp_pub.publish(ICP(A,B,None))
 
 #Subscribers
-lidar_sub = rospy.Subscriber('scan', LaserScan, subscriber_rplidar)
 map_sub = rospy.Subscriber('last_scan', LaserScan, subscriber_map)
 enc_sub = rospy.Subscriber('encoder', Pose, subscriber_encoder)
+lidar_sub = rospy.Subscriber('scan', LaserScan, subscriber_rplidar)
 
 #Publisher
 icp_pub = rospy.Publisher('icp', Custom, queue_size = 5)
