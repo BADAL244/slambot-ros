@@ -18,7 +18,7 @@ T = None
 A = None
 count = 0
 
-def ICP(A=None,B=None,T=None):
+def ICP(A,B,T):
     global count
     count = count + 1
     if count < 2:
