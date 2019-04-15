@@ -98,10 +98,12 @@ def subscriber_map(scan):
         rospy.loginfo("I heard scan A %s",str(A.ranges)[1:-1])
     else:
         rospy.loginfo("A is None")
+    return
 
 def subscriber_encoder(tf):
     global T
     T = tf
+    return
 
 def subscriber_rplidar(scan):
     global B
@@ -109,8 +111,9 @@ def subscriber_rplidar(scan):
     #rospy.loginfo("I heard scan B %s",str(B.ranges)[1:-1])
     msg = Custom()
     msg = ICP(A,B,None)
-    rospy.loginfo("ScAN B %s",str(msg.scan.ranges)[1:-1])
+    #rospy.loginfo("ScAN B %s",str(msg.scan.ranges)[1:-1])
     icp_pub.publish(msg)
+    return
 
 #Subscribers
 map_sub = rospy.Subscriber('last_scan', LaserScan, subscriber_map)
@@ -118,7 +121,7 @@ enc_sub = rospy.Subscriber('encoder', Pose, subscriber_encoder)
 lidar_sub = rospy.Subscriber('scan', LaserScan, subscriber_rplidar)
 
 #Publisher
-icp_pub = rospy.Publisher('icp', Custom, queue_size = 5)
+icp_pub = rospy.Publisher('icp', Custom, queue_size = 20)
 
 if __name__ == '__main__':
 
