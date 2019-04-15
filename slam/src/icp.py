@@ -103,7 +103,9 @@ def subscriber_rplidar(scan):
     global B
     B = scan
     rospy.loginfo("I heard scan B %s",str(B.ranges)[1:-1])
-    icp_pub.publish(ICP(A,B,None))
+    msg = Custom()
+    msg = ICP(A,B,None)
+    icp_pub.publish(msg)
 
 #Subscribers
 map_sub = rospy.Subscriber('last_scan', LaserScan, subscriber_map)
