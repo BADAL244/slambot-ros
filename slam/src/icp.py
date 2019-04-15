@@ -9,7 +9,7 @@ from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 from slam.msg import Custom
 
-rospy.init_node('icp_node', anonymous=True)
+rospy.init_node('icp_node')
 
 gmap = {}
 lidarScan = {}
@@ -112,7 +112,6 @@ def subscriber_rplidar(scan):
     msg = Custom()
     msg = ICP(A,B,None)
     #rospy.loginfo("ScAN B %s",str(msg.scan.ranges)[1:-1])
-    rospy.sleep(2)
     icp_pub.publish(msg)
     return
 
