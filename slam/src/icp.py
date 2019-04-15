@@ -22,7 +22,11 @@ def ICP(A=None,B=None,T=None):
     global count
     count = count + 1
     if count < 2:
-        return [None, None, None]
+        msg = Custom()
+        msg.header = None
+        msg.pose = None
+        msg.scan = None
+        return msg
 
     return_scan = B
     #make matrices from scans
@@ -61,7 +65,11 @@ def ICP(A=None,B=None,T=None):
         initial_distance = mean_distance
 
     #return matrix and final transform
-    return (T, return_scan)
+    msg = Custom()
+    msg.header = None
+    msg.scan = return_scan
+    msg.pose = T
+    return msg
 
 def getPointInScan(lidarScan,i):
     pt = lidarScan[i]
