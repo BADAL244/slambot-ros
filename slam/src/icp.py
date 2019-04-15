@@ -106,9 +106,10 @@ def subscriber_encoder(tf):
 def subscriber_rplidar(scan):
     global B
     B = scan
-    rospy.loginfo("I heard scan B %s",str(B.ranges)[1:-1])
+    #rospy.loginfo("I heard scan B %s",str(B.ranges)[1:-1])
     msg = Custom()
     msg = ICP(A,B,None)
+    rospy.loginfo("ScAN B %s",str(msg.scan.ranges)[1:-1])
     icp_pub.publish(msg)
 
 #Subscribers
