@@ -22,7 +22,7 @@ def ICP(A=None,B=None,T=None):
     global count
     count = count + 1
     if count < 2:
-        return (None, None)
+        return [None, None, None]
 
     return_scan = B
     #make matrices from scans
