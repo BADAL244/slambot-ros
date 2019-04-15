@@ -13,8 +13,8 @@ rospy.init_node('map_node',log_level=rospy.LOGWARN)
 all_scans = []
 all_tfs = []
 scan = None
-curr_scan_world_tf_x = 0
-curr_scan_world_tf_y = 0
+tf = None
+curr_scan_world_tf = 0
 gmap = OccupancyGrid()
 resolution = 1
 width = 288
@@ -50,8 +50,9 @@ def callback_sub(result):
     tf = result.pose
     scan = result.scan
     all_scans.append(scan)
-    all_tfs.append(tf)
-    curr_scan_world_tf += tf #total tf of scan till now
+    if tf is not None:
+        all_tfs.append(tf)
+        curr_scan_world_tf += tf #total tf of scan till now
 
     update_map()
     gmap.header.stamp = rospy.Time.now()
