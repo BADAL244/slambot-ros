@@ -19,8 +19,12 @@ gmap = OccupancyGrid()
 resolution = 1
 width = 288
 height = 288
+count = 0
 
 def update_map():
+    count = count + 1
+    if count < 2:
+        return
     #Get curr total tf of car
     #Use total tf of car to get tf of each point on scan
     #Use scan tf to place on grid 
@@ -40,6 +44,7 @@ def update_map():
         #put in map
         for i in range(width*height):
             gmap.data[i] = grid.flat[i]
+        return
 
 def callback_sub(result):
     tf = result.pose
