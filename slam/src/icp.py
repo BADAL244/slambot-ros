@@ -4,7 +4,7 @@ import rospy
 import tf
 import turtlesim.msg
 from sensor_msgs.msg import LaserScan
-from nav_msgs.msg import OccupancyGrid 
+from nav_msgs.msg import OccupancyGrid
 from std_msgs.msg import String
 from geometry_msgs.msg import Pose
 from slam.msg import Custom
@@ -20,12 +20,10 @@ count = 0
 
 def ICP(A,B,T):
     global count
-    count = count + 1
     rospy.loginfo("count %s",str(count))
     if count < 2:
         msg = Custom()
-        msg.header = None
-        msg.pose = None
+        msg.pose = Pose()
         msg.scan = B
         return msg
 
@@ -70,7 +68,6 @@ def ICP(A,B,T):
 
     #return matrix and final transform
     msg = Custom()
-    msg.header = None
     msg.scan = return_scan
     msg.pose = T
     return msg
@@ -92,7 +89,8 @@ def findClosestPoint(A,B,i):
     return pt2
 
 def subscriber_map(scan):
-    global A
+    global A, count
+    count = count + 1
     A = scan
     if A is not None:
         rospy.loginfo("I heard scan A %s",str(A.ranges)[1:-1])

@@ -22,6 +22,7 @@ height = 288
 count = 0
 
 def update_map():
+    global count
     count = count + 1
     if count < 2:
         return
@@ -47,6 +48,8 @@ def update_map():
         return
 
 def callback_sub(result):
+    global curr_scan_world_tf
+    rospy.loginfo("Mapping got something from ICP")
     tf = result.pose
     scan = result.scan
     all_scans.append(scan)
