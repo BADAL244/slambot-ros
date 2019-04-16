@@ -4,3 +4,6 @@
 [submodule "differential-drive"]
 	path = differential-drive
 	url = https://github.com/jfstepha/differential-drive.git
+[submodule "Adafruit-Motor-HAT-Python-Library"]
+	path = motor_ctrl/src/motor_ctrl/Adafruit-Motor-HAT-Python-Library
+	url = https://github.com/adafruit/Adafruit-Motor-HAT-Python-Library.git
