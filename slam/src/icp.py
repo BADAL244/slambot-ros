@@ -19,10 +19,10 @@ T = None
 A = None
 count = 0
 
-def ICP(A,B,T):
-    global count
+def ICP():
+    global count, T, A, B
     rospy.loginfo("count %s",str(count))
-    if count < 2:
+    if count < 1:
         msg = Custom()
         msg.pose = Pose()
         msg.scan = B
@@ -39,36 +39,32 @@ def ICP(A,B,T):
             x = np.cos(np.deg2rad(i))*A.ranges[i] + 90
             y = np.sin(np.deg2rad(i))*A.ranges[i] + 90
             src.append([x,y])
+        else:
+            src.append([10000,10000])
         if not np.isinf(B.ranges[i]):
             x1 = np.cos(np.deg2rad(i))*B.ranges[i] + 90
             y1 = np.sin(np.deg2rad(i))*B.ranges[i] + 90
             dst.append([x1,y1])
+        else:
+            dst.append([10000,10000])
 
-    A = np.transpose(np.matrix(src))
-    B = np.transpose(np.matrix(dst))
+    A_mat = np.matrix(src)
+    B_mat = np.matrix(dst)
 
     #subtract the means of both matrices
-    A = A - np.mean(A, axis=0)
-    B = B - np.mean(B, axis=0)
-    if T is not None:
-        A = np.dot(T, A)
+    A_mat = A_mat - np.mean(A_mat, axis=0)
+    B_mat = B_mat - np.mean(B_mat, axis=0)
 
     #convergence params
-    dmax = 0.001
     iterations = 50
-    initial_distance = 0
-
+    rospy.loginfo(str(A_mat.shape)[1:-1])
+    rospy.loginfo(str(B_mat.shape)[1:-1])
     #start iterations
     for i in range(iterations):
-        T, distance = np.linalg.lstsq(A, B)[0:2] #Ax-B minimize
-        A = np.dot(T, A)
-
-        #check mean error
-        mean_distance = np.mean(distance)
-        if np.abs(initial_distance - mean_distance) < dmax:
+        T, residual, rank, sv = np.linalg.lstsq(A_mat, B_mat) #Ax-B minimize
+        if np.allclose(A_mat, np.dot(B_mat, T), 0.001, 0.01, True):
             break
-        initial_distance = mean_distance
-
+    rospy.loginfo("T shapre %s",str(T.shape)[1:-1])
     #return matrix and final transform
     #TODO make T into Pose
     msg = Custom()
@@ -112,7 +108,7 @@ def subscriber_rplidar(scan):
     B = scan
     #rospy.loginfo("I heard scan B %s",str(B.ranges)[1:-1])
     msg = Custom()
-    msg = ICP(A,B,None)
+    msg = ICP()
     #rospy.loginfo("ScAN B %s",str(msg.scan.ranges)[1:-1])
     icp_pub.publish(msg)
     return
