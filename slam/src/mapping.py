@@ -8,7 +8,7 @@ import tf
 import math
 import numpy as np
 
-rospy.init_node('map_node',log_level=rospy.LOGWARN)
+rospy.init_node('map_node')
 
 all_scans = []
 all_tfs = []
@@ -27,7 +27,7 @@ def update_map():
         return
     #Get curr total tf of car
     #Use total tf of car to get tf of each point on scan
-    #Use scan tf to place on grid 
+    #Use scan tf to place on grid
     trans = tf.transformations.euler_from_quaternion(orientation)
 
     #matrix to get scan point tf
@@ -69,7 +69,7 @@ last_scan_pub = rospy.Publisher('last_scan', LaserScan, queue_size = 5)
 
 
 
-if __name__ == '__main_':
+if __name__ == '__main__':
     grid = np.ndarray((width,height), buffer=np.zeros((width,height), dtype=np.int),dtype=np.int)
     grid.fill(int(-1))
 
