@@ -2,6 +2,7 @@
 import numpy as np
 import rospy
 import tf
+import math
 import turtlesim.msg
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import OccupancyGrid
@@ -28,18 +29,20 @@ def ICP(A,B,T):
         return msg
 
     return_scan = B
-
-    B = B.ranges
-    A = A.ranges
     #make matrices from scans
 
     src = []
     dst = []
+    #TODO resolution vs lidar measurements
     for i in range(360):
-        pt = getPointInScan(A,i)
-        src = src.append([pt.x, pt.y])
-        pt2 = findClosestPoint(A,B,i)
-        dst = dst.append([pt2.x, pt2.y])
+        if not np.isinf(A.ranges[i]):
+            x = np.cos(np.deg2rad(i))*A.ranges[i] + 90
+            y = np.sin(np.deg2rad(i))*A.ranges[i] + 90
+            src.append([x,y])
+        if not np.isinf(B.ranges[i]):
+            x1 = np.cos(np.deg2rad(i))*B.ranges[i] + 90
+            y1 = np.sin(np.deg2rad(i))*B.ranges[i] + 90
+            dst.append([x1,y1])
 
     A = np.transpose(np.matrix(src))
     B = np.transpose(np.matrix(dst))
@@ -67,6 +70,7 @@ def ICP(A,B,T):
         initial_distance = mean_distance
 
     #return matrix and final transform
+    #TODO make T into Pose
     msg = Custom()
     msg.scan = return_scan
     msg.pose = T
@@ -74,7 +78,7 @@ def ICP(A,B,T):
 
 def getPointInScan(lidarScan,i):
     pt = lidarScan[i]
-    return Math.sqrt(Math.pow(pt.x, 2) + Math.pow(pt.y,2))
+    return math.sqrt(math.pow(pt.x, 2) + math.pow(pt.y,2))
 
 def findClosestPoint(A,B,i):
     pt = getPointInScan(A,i);
@@ -82,7 +86,7 @@ def findClosestPoint(A,B,i):
     lowestDist = 999999999;
     for i in range(360):
         testPoint = getPointInScan(B,i)
-        dist = Math.sqrt(Math.pow(pt.x - testPoint.x, 2) + Math.pow(pt.y - testPoint.y, 2))
+        dist = math.sqrt(math.pow(pt.x - testPoint.x, 2) + math.pow(pt.y - testPoint.y, 2))
         if dist < lowestDist:
             lowestDist = dist
             pt2 = testPoint
