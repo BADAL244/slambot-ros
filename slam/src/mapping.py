@@ -71,7 +71,7 @@ def addPose(A, B):
 
 def callback_sub(result):
     global curr_scan_world_tf,scan,tf,all_scans,all_tfs
-    rospy.loginfo("Mapping got something from ICP %s",str(result.scan.ranges)[1:-1])
+    #rospy.loginfo("Mapping got something from ICP %s",str(result.scan.ranges)[1:-1])
     tf = result.pose
     scan = result.scan
     all_scans.append(scan)

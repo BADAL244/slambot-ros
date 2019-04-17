@@ -8,7 +8,7 @@ import turtlesim.msg
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import OccupancyGrid
 from std_msgs.msg import String
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, Point, Quaternion
 from slam.msg import Custom
 
 rospy.init_node('icp_node')
@@ -21,17 +21,14 @@ A = None
 count = 0
 
 def transform(A,B):
-
-    assert A.shape == B.shape
-
-    m = A.shape[1] # should be 2
+    m = A.shape[1]
     centre_A = np.mean(A, axis=0)
     centre_B = np.mean(B, axis=0)
 
     AA = A - centre_A
     BB = B - centre_B
 
-    #rotation
+    #rotattion
     H = np.dot(AA.T, BB)
     U, S, Vt = np.linalg.svd(H)
     R = np.dot(Vt.T, U.T)
@@ -82,8 +79,8 @@ def ICP():
 
     src = np.ones((m+1, 360))
     dst = np.ones((m+1, 360))
-    src[:m,:] = np.copy(A.T)
-    dst[:m,:] = np.copy(B.T)
+    src[:m,:] = np.copy(A_as_ndarray.T)
+    dst[:m,:] = np.copy(B_as_ndarray.T)
 
     prev_error = 0
     #start iterations
@@ -105,12 +102,24 @@ def ICP():
         prev_error = mean_error
 
     T,R,t = transform(A_as_ndarray, src[:m,:].T)
-
+    rospy.loginfo("This is T %s",str(T)[1:-1])
+    rospy.loginfo("This is R %s",str(R)[1:-1])
+    rospy.loginfo("This is t %s",str(t)[1:-1])
     #return matrix and final transform
     #TODO make T into Pose
     msg = Custom()
     msg.scan = return_scan
     msg.pose = Pose()
+    msg.pose.position = Point()
+    msg.pose.orientation = Quaternion()
+    msg.pose.position.x = t[0]
+    msg.pose.position.y = t[1]
+    msg.pose.position.z = 0
+    msg.pose.orientation.x = R[0][0]
+    msg.pose.orientation.y = R[0][1]
+    msg.pose.orientation.z = R[1][0]
+    msg.pose.orientation.w = R[1][1]
+
     return msg
 
 def getPointInScan(lidarScan,i):
@@ -133,10 +142,10 @@ def subscriber_map(scan):
     global A, count
     count = count + 1
     A = scan
-    if A is not None:
-        rospy.loginfo("I heard scan A %s",str(A.ranges)[1:-1])
-    else:
-        rospy.loginfo("A is None")
+    #if A is not None:
+        #rospy.loginfo("I heard scan A %s",str(A.ranges)[1:-1])
+    #else:
+        #rospy.loginfo("A is None")
     return
 
 def subscriber_encoder(tf):
