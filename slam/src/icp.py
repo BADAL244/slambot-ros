@@ -69,7 +69,7 @@ def ICP():
     #TODO make T into Pose
     msg = Custom()
     msg.scan = return_scan
-    msg.pose = T
+    msg.pose = Pose()
     return msg
 
 def getPointInScan(lidarScan,i):
