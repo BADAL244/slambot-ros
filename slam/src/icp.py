@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 import numpy as np
+from sklearn.neighbors import NearestNeighbors
 import rospy
 import tf
 import math
@@ -19,6 +20,32 @@ T = None
 A = None
 count = 0
 
+def transform(A,B):
+
+    assert A.shape == B.shape
+
+    m = A.shape[1] # should be 2
+    centre_A = np.mean(A, axis=0)
+    centre_B = np.mean(B, axis=0)
+
+    AA = A - centre_A
+    BB = B - centre_B
+
+    #rotation
+    H = np.dot(AA.T, BB)
+    U, S, Vt = np.linalg.svd(H)
+    R = np.dot(Vt.T, U.T)
+
+    #translation
+    t = centre_B.T - np.dot(R, centre_A.T)
+
+    #transformation
+    T = np.identity(m+1)
+    T[:m, :m] = R
+    T[:m, m] = t
+
+    return T,R,t
+
 def ICP():
     global count, T, A, B
     rospy.loginfo("count %s",str(count))
@@ -31,40 +58,54 @@ def ICP():
     return_scan = B
     #make matrices from scans
 
-    src = []
-    dst = []
+    init_a = []
+    init_b = []
     #TODO resolution vs lidar measurements
     for i in range(360):
         if not np.isinf(A.ranges[i]):
             x = np.cos(np.deg2rad(i))*A.ranges[i] + 90
             y = np.sin(np.deg2rad(i))*A.ranges[i] + 90
-            src.append([x,y])
+            init_a.append([x,y])
         else:
-            src.append([10000,10000])
+            init_a.append([10000,10000])
         if not np.isinf(B.ranges[i]):
             x1 = np.cos(np.deg2rad(i))*B.ranges[i] + 90
             y1 = np.sin(np.deg2rad(i))*B.ranges[i] + 90
-            dst.append([x1,y1])
+            init_b.append([x1,y1])
         else:
-            dst.append([10000,10000])
+            init_b.append([10000,10000])
 
-    A_mat = np.matrix(src)
-    B_mat = np.matrix(dst)
+    B_as_ndarray = np.asarray(init_b)
+    A_as_ndarray = np.asarray(init_a)
 
-    #subtract the means of both matrices
-    A_mat = A_mat - np.mean(A_mat, axis=0)
-    B_mat = B_mat - np.mean(B_mat, axis=0)
+    m = A_as_ndarray.shape[1] #should be 2
 
-    #convergence params
-    iterations = 50
-    rospy.loginfo(str(A_mat.shape)[1:-1])
-    rospy.loginfo(str(B_mat.shape)[1:-1])
+    src = np.ones((m+1, 360))
+    dst = np.ones((m+1, 360))
+    src[:m,:] = np.copy(A.T)
+    dst[:m,:] = np.copy(B.T)
+
+    prev_error = 0
     #start iterations
-    for i in range(iterations):
-        T, residual, rank, sv = np.linalg.lstsq(A_mat, B_mat) #Ax-B minimize
-        if np.allclose(A_mat, np.dot(B_mat, T), 0.001, 0.01, True):
+    for i in range(50):
+
+        #find nearest neighbour
+        machine = NearestNeighbors(n_neighbors=1)
+        machine.fit(dst[:m,:].T)
+        res1, res2 = machine.kneighbors(src[:m,:].T,return_distance=True)
+        distances = res1.ravel()
+        indices = res2.ravel()
+
+        T,R,t = transform(src[:m,:].T, dst[:m,indices].T)
+        src = np.dot(T, src)
+
+        mean_error = np.mean(distances)
+        if np.abs(prev_error - mean_error) < 0.001:
             break
-    rospy.loginfo("T shapre %s",str(T.shape)[1:-1])
+        prev_error = mean_error
+
+    T,R,t = transform(A_as_ndarray, src[:m,:].T)
+
     #return matrix and final transform
     #TODO make T into Pose
     msg = Custom()
