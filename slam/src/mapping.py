@@ -56,7 +56,8 @@ def update_map():
         gmap.data[i] = grid.flat[i]
     return
 
-def addPose(A, B):
+
+def addPose(A,B):
     C = Pose()
     C.position = Point()
     C.orientation = Quaternion()

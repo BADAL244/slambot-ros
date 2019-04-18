@@ -64,13 +64,13 @@ def ICP():
             y = np.sin(np.deg2rad(i))*A.ranges[i] + 90
             init_a.append([x,y])
         else:
-            init_a.append([10000,10000])
+            init_a.append([100,100])
         if not np.isinf(B.ranges[i]):
             x1 = np.cos(np.deg2rad(i))*B.ranges[i] + 90
             y1 = np.sin(np.deg2rad(i))*B.ranges[i] + 90
             init_b.append([x1,y1])
         else:
-            init_b.append([10000,10000])
+            init_b.append([100,100])
 
     B_as_ndarray = np.asarray(init_b)
     A_as_ndarray = np.asarray(init_a)
@@ -102,9 +102,9 @@ def ICP():
         prev_error = mean_error
 
     T,R,t = transform(A_as_ndarray, src[:m,:].T)
-    rospy.loginfo("This is T %s",str(T)[1:-1])
-    rospy.loginfo("This is R %s",str(R)[1:-1])
-    rospy.loginfo("This is t %s",str(t)[1:-1])
+    #rospy.loginfo("This is T %s",str(T)[1:-1])
+    #rospy.loginfo("This is R %s",str(R)[1:-1])
+    #rospy.loginfo("This is t %s",str(t)[1:-1])
     #return matrix and final transform
     #TODO make T into Pose
     msg = Custom()
