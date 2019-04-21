@@ -45,7 +45,11 @@ def transform(A,B):
 
 def ICP():
     global count, T, A, B
-    rospy.loginfo("count %s",str(count))
+    #if count > 2:
+        #print_arr = []
+        #for x in range(360):
+            #print_arr.append((A.ranges[x],B.ranges[x]))
+            #rospy.loginfo("I heard scan %s",str(print_arr)[1:-1])
     if count < 1:
         msg = Custom()
         msg.pose = Pose()
@@ -60,17 +64,17 @@ def ICP():
     #TODO resolution vs lidar measurements
     for i in range(360):
         if not np.isinf(A.ranges[i]):
-            x = np.cos(np.deg2rad(i))*A.ranges[i] + 90
-            y = np.sin(np.deg2rad(i))*A.ranges[i] + 90
+            x = np.cos(np.deg2rad(i))*A.ranges[i]*0.0394
+            y = np.sin(np.deg2rad(i))*A.ranges[i]*0.0394
             init_a.append([x,y])
         else:
-            init_a.append([100,100])
+            init_a.append([10000,10000])
         if not np.isinf(B.ranges[i]):
-            x1 = np.cos(np.deg2rad(i))*B.ranges[i] + 90
-            y1 = np.sin(np.deg2rad(i))*B.ranges[i] + 90
+            x1 = np.cos(np.deg2rad(i))*B.ranges[i]*0.0394
+            y1 = np.sin(np.deg2rad(i))*B.ranges[i]*0.0394
             init_b.append([x1,y1])
         else:
-            init_b.append([100,100])
+            init_b.append([10000,10000])
 
     B_as_ndarray = np.asarray(init_b)
     A_as_ndarray = np.asarray(init_a)
@@ -115,6 +119,8 @@ def ICP():
     msg.pose.position.x = t[0]
     msg.pose.position.y = t[1]
     msg.pose.position.z = 0
+    rospy.loginfo("/n")
+    rospy.loginfo("ICP X: %s, Y: %s",str(t[0]),str(t[1]))
     msg.pose.orientation.x = R[0][0]
     msg.pose.orientation.y = R[0][1]
     msg.pose.orientation.z = R[1][0]

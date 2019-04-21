@@ -16,10 +16,10 @@ scan = None
 tf = None
 curr_scan_world_tf = Pose()
 gmap = OccupancyGrid()
-resolution = 1
-width = 288
-height = 288
 count = 0
+height = 144
+width = 144
+resolution = 1
 
 def update_map():
     global scan, height, width, resolution, gmap, curr_scan_world_tf, tf
@@ -50,8 +50,17 @@ def update_map():
         total = addPose(scan_robo_tf, curr_scan_world_tf)
         #add to grid
         #144 because we want to start in the middle of the grid
-        grid[int(total.position.x+144), int(total.position.y+144)] = int(100)
+        xpoz = int (total.position.x) + 72
+        ypoz = int (total.position.y) + 72
 
+        if xpoz < 0 or ypoz < 0:
+            rospy.loginfo("GRID POSITION IS LESS THAN 0")
+        elif xpoz >= 144 or ypoz >= 144:
+            continue
+        else:
+            grid[xpoz, ypoz] = int(100)
+            #rospy.loginfo("X: %s, Y: %s", str(int(xpoz)),
+                    #str(int(ypoz)))
     for i in range(width*height):
         gmap.data[i] = grid.flat[i]
     return
@@ -99,11 +108,11 @@ if __name__ == '__main__':
     grid = np.ndarray((width,height), buffer=np.zeros((width,height), dtype=np.int),dtype=np.int)
     grid.fill(int(-1))
 
-    gmap.info.origin.position.x = -width//2*resolution
-    gmap.info.origin.position.y = -height//2*resolution
-    gmap.info.resolution = resolution
-    gmap.info.width = width
-    gmap.info.height = height
+    gmap.info.origin.position.x = 72
+    gmap.info.origin.position.y = 72
+    gmap.info.resolution = 1
+    gmap.info.width = 144
+    gmap.info.height = 144
     gmap.data = range(width*height)
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
