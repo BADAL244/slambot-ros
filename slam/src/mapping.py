@@ -83,12 +83,13 @@ def callback_sub(result):
     global curr_scan_world_tf,scan,tf,all_scans,all_tfs
     #rospy.loginfo("Mapping got something from ICP %s",str(result.scan.ranges)[1:-1])
     tf = result.pose
+    rospy.loginfo("ICP x: %s, y: %s", str(tf.position.x),str(tf.position.y))
     scan = result.scan
     all_scans.append(scan)
     if tf is not None:
         all_tfs.append(tf)
         curr_scan_world_tf = addPose(curr_scan_world_tf, tf) #total tf of scan till now
-
+        rospy.loginfo("Curr Scan World Tf x: %s, y:%s",str(curr_scan_world_tf.position.x),str(curr_scan_world_tf.position.y))
     update_map()
     gmap.header.stamp = rospy.Time.now()
     last_scan_pub.publish(scan)
@@ -110,7 +111,7 @@ if __name__ == '__main__':
 
     gmap.info.origin.position.x = 72
     gmap.info.origin.position.y = 72
-    gmap.info.resolution = 1
+    gmap.info.resolution = 0.0254
     gmap.info.width = 144
     gmap.info.height = 144
     gmap.data = range(width*height)

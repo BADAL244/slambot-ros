@@ -19,6 +19,7 @@ B = None
 T = None
 A = None
 count = 0
+lidar_count = 0
 
 def transform(A,B):
     m = A.shape[1]
@@ -64,14 +65,14 @@ def ICP():
     #TODO resolution vs lidar measurements
     for i in range(360):
         if not np.isinf(A.ranges[i]):
-            x = np.cos(np.deg2rad(i))*A.ranges[i]*0.0394
-            y = np.sin(np.deg2rad(i))*A.ranges[i]*0.0394
+            x = np.cos(np.deg2rad(i))*A.ranges[i]*39.37
+            y = np.sin(np.deg2rad(i))*A.ranges[i]*39.37
             init_a.append([x,y])
         else:
             init_a.append([10000,10000])
         if not np.isinf(B.ranges[i]):
-            x1 = np.cos(np.deg2rad(i))*B.ranges[i]*0.0394
-            y1 = np.sin(np.deg2rad(i))*B.ranges[i]*0.0394
+            x1 = np.cos(np.deg2rad(i))*B.ranges[i]*39.37
+            y1 = np.sin(np.deg2rad(i))*B.ranges[i]*39.37
             init_b.append([x1,y1])
         else:
             init_b.append([10000,10000])
@@ -119,7 +120,7 @@ def ICP():
     msg.pose.position.x = t[0]
     msg.pose.position.y = t[1]
     msg.pose.position.z = 0
-    rospy.loginfo("/n")
+    #rospy.loginfo("/n")
     rospy.loginfo("ICP X: %s, Y: %s",str(t[0]),str(t[1]))
     msg.pose.orientation.x = R[0][0]
     msg.pose.orientation.y = R[0][1]
@@ -127,22 +128,6 @@ def ICP():
     msg.pose.orientation.w = R[1][1]
 
     return msg
-
-def getPointInScan(lidarScan,i):
-    pt = lidarScan[i]
-    return math.sqrt(math.pow(pt.x, 2) + math.pow(pt.y,2))
-
-def findClosestPoint(A,B,i):
-    pt = getPointInScan(A,i);
-    pt2 = [];
-    lowestDist = 999999999;
-    for i in range(360):
-        testPoint = getPointInScan(B,i)
-        dist = math.sqrt(math.pow(pt.x - testPoint.x, 2) + math.pow(pt.y - testPoint.y, 2))
-        if dist < lowestDist:
-            lowestDist = dist
-            pt2 = testPoint
-    return pt2
 
 def subscriber_map(scan):
     global A, count
@@ -160,8 +145,15 @@ def subscriber_encoder(tf):
     return
 
 def subscriber_rplidar(scan):
-    global B
+    global B, lidar_count
     B = scan
+
+    #if lidar_count != 0:
+        #lidar_count = (lidar_count + 1) % 10
+        #return
+
+    lidar_count = (lidar_count + 1) % 10
+
     #rospy.loginfo("I heard scan B %s",str(B.ranges)[1:-1])
     msg = Custom()
     msg = ICP()
