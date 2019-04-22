@@ -9,6 +9,8 @@ import math
 import numpy as np
 import os
 import requests
+import json
+import urllib2
 
 rospy.init_node('map_node')
 server = os.getenv('SERVER')
