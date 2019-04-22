@@ -7,6 +7,8 @@ from slam.msg import Custom
 import tf
 import math
 import numpy as np
+import json
+import urllib2
 
 rospy.init_node('map_node')
 
@@ -20,6 +22,17 @@ count = 0
 height = 144
 width = 144
 resolution = 1
+
+def mapToServer():
+    data = {
+        'data': gmap
+    }
+
+    req = urllib2.Request('website/data')
+    req.add_header('Content-Type', 'application/json')
+
+    response = urllib2.urlopen(req, json.dumps(data))
+    return
 
 def update_map():
     global scan, height, width, resolution, gmap, curr_scan_world_tf, tf
@@ -60,6 +73,7 @@ def update_map():
             grid[xpoz, ypoz] = int(100)
     for i in range(width*height):
         gmap.data[i] = grid.flat[i]
+    mapToServer()
     return
 
 
