@@ -1,5 +1,10 @@
 # 2D Autonomous Mapping
 
+ROS modules made for 18-500: ECE Design Experience at Carnegie Mellon University.
+
+## Project Site:
+http://course.ece.cmu.edu/~ece500/projects/s19-teamb4/
+
 ## Development setup
 
 0. Install ROS and choose a folder for your catkin workspace.
