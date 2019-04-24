@@ -7,10 +7,11 @@ from slam.msg import Custom
 import tf
 import math
 import numpy as np
-import json
-import urllib2
+import os
+import requests
 
 rospy.init_node('map_node')
+server = os.getenv('SERVER')
 
 all_scans = []
 all_tfs = []
@@ -24,14 +25,12 @@ width = 144
 resolution = 1
 
 def mapToServer():
-    data = {
+    payload = {
         'data': gmap
     }
-
-    req = urllib2.Request('website/data')
-    req.add_header('Content-Type', 'application/json')
-
-    response = urllib2.urlopen(req, json.dumps(data))
+    to = server + '/data'
+    r = requests.post(to, data=payload)
+    print (r)
     return
 
 def update_map():
