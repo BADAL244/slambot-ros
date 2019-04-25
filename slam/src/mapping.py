@@ -29,7 +29,6 @@ def update_map():
     if count < 2:
         return
 
-    rospy.loginfo("Scen is %s", str(scan.ranges)[1:-1])
     for i in range(360):
         if np.isinf(scan.ranges[i]):
             continue
@@ -50,11 +49,8 @@ def update_map():
         total = Pose()
         total = addPose(scan_robo_tf, curr_scan_world_tf)
         #add to grid
-        #144 because we want to start in the middle of the grid
-        rospy.loginfo("xpoz: %s, ypoz: %s", str(total.position.x*39.37),
-                str(total.position.y*39.37))
-        xpoz = int (total.position.x*39.37) + 72
-        ypoz = int (total.position.y*39.37) + 72
+        xpoz = int(total.position.x*39.37) + 72
+        ypoz = int(total.position.y*39.37) + 72
 
         if xpoz < 0 or ypoz < 0:
             rospy.loginfo("GRID POSITION IS LESS THAN 0")
@@ -62,8 +58,6 @@ def update_map():
             continue
         else:
             grid[xpoz, ypoz] = int(100)
-
-            rospy.loginfo("In grid X: %s, Y: %s", str(int(xpoz)),str(int(ypoz)))
     for i in range(width*height):
         gmap.data[i] = grid.flat[i]
     return
@@ -84,15 +78,12 @@ def addPose(A,B):
 
 def callback_sub(result):
     global curr_scan_world_tf,scan,tf,all_scans,all_tfs
-    #rospy.loginfo("Mapping got something from ICP %s",str(result.scan.ranges)[1:-1])
     tf = result.pose
-    rospy.loginfo("Mapping X: %s, Y: %s", str(tf.position.x),str(tf.position.y))
     scan = result.scan
     all_scans.append(scan)
     if tf is not None:
         all_tfs.append(tf)
-        curr_scan_world_tf = addPose(curr_scan_world_tf, tf) #total tf of scan till now
-        rospy.loginfo("Curr Scan World Tf x: %s, y:%s",str(curr_scan_world_tf.position.x),str(curr_scan_world_tf.position.y))
+        curr_scan_world_tf = addPose(curr_scan_world_tf, tf)
     update_map()
     gmap.header.stamp = rospy.Time.now()
     last_scan_pub.publish(scan)
@@ -113,8 +104,8 @@ if __name__ == '__main__':
     grid = np.ndarray((width,height), buffer=np.zeros((width,height), dtype=np.int),dtype=np.int)
     grid.fill(int(-1))
 
-    gmap.info.origin.position.x = 0
-    gmap.info.origin.position.y = 0
+    gmap.info.origin.position.x = -72 * resolution
+    gmap.info.origin.position.y = -72 * resolution
     gmap.info.resolution = 0.0254
     gmap.info.width = 144
     gmap.info.height = 144

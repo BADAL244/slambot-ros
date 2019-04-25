@@ -34,6 +34,11 @@ def transform(A,B):
     U, S, Vt = np.linalg.svd(H)
     R = np.dot(Vt.T, U.T)
 
+    #reflection 
+    if np.linalg.det(R) < 0:
+        vt[m-1,:] *= -1
+        R = np.dot(Vt.T, U.T)
+
     #translation
     t = centre_B.T - np.dot(R, centre_A.T)
 
