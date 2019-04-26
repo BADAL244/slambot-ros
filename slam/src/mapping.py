@@ -14,12 +14,12 @@ all_scans = []
 all_tfs = []
 scan = None
 tf = None
-curr_scan_world_tf = Pose()
+curr_scan_world_tf = Pose() # all values in inches
 gmap = OccupancyGrid()
 count = 0
 height = 144
 width = 144
-resolution = 1
+resolution = 0.0254
 
 def update_map():
     global scan, height, width, resolution, gmap, curr_scan_world_tf, tf
@@ -33,12 +33,13 @@ def update_map():
         if np.isinf(scan.ranges[i]):
             continue
         theta = np.deg2rad(i)
-        #get robot to scan point pose
+        #get robot to scan point pose, in metres
         scan_robo_tf = Pose()
         scan_robo_tf.position = Point()
         scan_robo_tf.orientation = Quaternion()
-        scan_robo_tf.position.x = scan.ranges[i]*np.cos(theta)
-        scan_robo_tf.position.y = scan.ranges[i]*np.sin(theta)
+        #convert to inches
+        scan_robo_tf.position.x = scan.ranges[i]*np.cos(theta)*39.37
+        scan_robo_tf.position.y = scan.ranges[i]*np.sin(theta)*39.37
         scan_robo_tf.position.z = 0
         scan_robo_tf.orientation.x = 0
         scan_robo_tf.orientation.y = 0
@@ -49,19 +50,44 @@ def update_map():
         total = Pose()
         total = addPose(scan_robo_tf, curr_scan_world_tf)
         #add to grid
-        xpoz = int(total.position.x*39.37) + 72
-        ypoz = int(total.position.y*39.37) + 72
+        #xpoz and ypoz are in inches, add 72 inches to place in middle of grid
+        xpoz = int(total.position.x) + 72
+        ypoz = int(total.position.y) + 72
 
         if xpoz < 0 or ypoz < 0:
-            rospy.loginfo("GRID POSITION IS LESS THAN 0")
+            rospy.loginfo("GRID POSITIOn MIN %s %s",str(xpoz),str(ypoz))
         elif xpoz >= 144 or ypoz >= 144:
             continue
         else:
             grid[xpoz, ypoz] = int(100)
+            hallway_cells = find_bresenham_points(int(xpoz), int(ypoz),
+                    int(curr_scan_world_tf.position.x),
+                    int(curr_scan_world_tf.position.y))
+            for b_point in hallway_cells:
+                grid[b_point[0], b_point[1]] = int(0)
     for i in range(width*height):
         gmap.data[i] = grid.flat[i]
     return
 
+def find_bresenham_points(x1,y1,x2,y2):
+    m_new = 2 * (y2 - y1)
+    slope_error_new = m_new - (x2 - x1)
+    bresenham_points = []
+
+    if x1>x2:
+        x1,x2=x2,x1
+    if y1>y2: y = y2
+    else: y = y1
+
+    for x in range(x1, x2+1):
+        bresenham_points.append([x,y])
+        slope_error_new = slope_error_new + m_new
+
+        if (slope_error_new >= 0):
+            y=y+1
+            slope_error_new =slope_error_new - 2 * (x2 - x1)
+
+    return bresenham_points
 
 def addPose(A,B):
     C = Pose()
@@ -104,8 +130,8 @@ if __name__ == '__main__':
     grid = np.ndarray((width,height), buffer=np.zeros((width,height), dtype=np.int),dtype=np.int)
     grid.fill(int(-1))
 
-    gmap.info.origin.position.x = -72 * resolution
-    gmap.info.origin.position.y = -72 * resolution
+    gmap.info.origin.position.x = 0
+    gmap.info.origin.position.y = 0
     gmap.info.resolution = 0.0254
     gmap.info.width = 144
     gmap.info.height = 144
