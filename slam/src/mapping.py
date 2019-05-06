@@ -7,8 +7,13 @@ from slam.msg import Custom
 import tf
 import math
 import numpy as np
+import os
+import requests
+import json
+import urllib2
 
 rospy.init_node('map_node')
+server = 'http://CHANGE_ME:3001'
 
 all_scans = []
 all_tfs = []
@@ -20,6 +25,14 @@ count = 0
 height = 288
 width = 288
 resolution = 0.0254
+
+def mapToServer():
+    payload = {
+        'data': gmap.data
+    }
+    to = server + '/data'
+    r = requests.post(to, data=payload)
+    return
 
 def update_map():
     global scan, height, width, resolution, gmap, curr_scan_world_tf, tf
@@ -72,6 +85,7 @@ def update_map():
              #   grid[b_point[0], b_point[1]] = int(0)
     for i in range(width*height):
         gmap.data[i] = grid.flat[i]
+    mapToServer()
     return
 
 def find_bresenham_points(x1,y1,x2,y2):
@@ -108,9 +122,11 @@ def callback_sub(result):
     all_scans.append(scan)
     if tf is not None:
         all_tfs.append(tf)
-        curr_scan_world_tf = addPose(curr_scan_world_tf, tf) #total tf of scan till now
-        robo_pose_pub.publish(curr_scan_world_tf)
-        rospy.loginfo("Curr Scan World Tf x: %s, y:%s",str(curr_scan_world_tf.position.x),str(curr_scan_world_tf.position.y))
+        curr_scan_world_tf = addPose(curr_scan_world_tf, tf)
+        #rospy.loginfo(tf.position.x)
+        #rospy.loginfo(tf.position.y)
+        #rospy.loginfo(curr_scan_world_tf.position.x)
+        #rospy.loginfo(curr_scan_world_tf.position.y)
     update_map()
     gmap.header.stamp = rospy.Time.now()
     last_scan_pub.publish(scan)
@@ -121,9 +137,9 @@ def callback_sub(result):
 icp_sub = rospy.Subscriber('icp', Custom, callback_sub)
 
 #Publishers
-map_pub = rospy.Publisher('map', OccupancyGrid, queue_size = 10)
-last_scan_pub = rospy.Publisher('last_scan', LaserScan, queue_size = 10)
-robo_pose_pub = rospy.Publisher('robot_pose', Pose, queue_size = 10)
+map_pub = rospy.Publisher('map', OccupancyGrid, queue_size = 5)
+last_scan_pub = rospy.Publisher('last_scan', LaserScan, queue_size = 5)
+
 
 
 if __name__ == '__main__':
